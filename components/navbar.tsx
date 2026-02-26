@@ -1,3 +1,3 @@
 export default function NavBar() {
-    return <nav> Navbar </nav>
+    return (<nav> Navbar </nav>)
 }
