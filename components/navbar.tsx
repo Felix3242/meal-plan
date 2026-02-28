@@ -2,10 +2,10 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { SignedIn, SignedOut, useUser } from "@clerk/nextjs";
+import { SignedIn, SignedOut, useUser, SignOutButton } from "@clerk/nextjs";
 
 export default function NavBar() {
-    const { isLoaded, isSignedIn, user } = useUser()
+    const { isLoaded, user } = useUser()
 
     if (!isLoaded) return <p> Loading... </p>;
     return (
@@ -35,6 +35,9 @@ export default function NavBar() {
                     ) : (
                         <div></div>
                     )}
+                    <SignOutButton>
+                        <button> Sign Out </button>
+                    </SignOutButton>
                 </SignedIn>
                 <SignedOut>
                 </SignedOut>
