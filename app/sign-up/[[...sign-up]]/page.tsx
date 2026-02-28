@@ -1,3 +1,6 @@
-export default function SignUp () {
-    return <div> Sign Up Page </div>
+import { SignUp } from "@clerk/nextjs";
+
+
+export default function SignUpPage() {
+    return <SignUp />;
 }
