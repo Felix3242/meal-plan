@@ -7,6 +7,10 @@ const isPublicRoute = createRouteMatcher([
   '/subscribe(.*)'
 ]);
 
+const isSignUpRoute = createRouteMatcher([
+  '/sign-up(.*)'
+]);
+
 export default clerkMiddleware(async (auth, req) => {
   const userAuth = await auth();
   const { userId } = userAuth;
@@ -16,6 +20,10 @@ export default clerkMiddleware(async (auth, req) => {
   if (!isPublicRoute(req) && !userId) {
     return NextResponse.redirect(new URL('/sign-up', origin));
     }
+
+  if (isSignUpRoute(req) && userId) {
+    return NextResponse.redirect(new URL('/mealplan', origin));
+  }
 });
 
 export const config = {
