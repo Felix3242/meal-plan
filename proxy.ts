@@ -24,6 +24,8 @@ export default clerkMiddleware(async (auth, req) => {
   if (isSignUpRoute(req) && userId) {
     return NextResponse.redirect(new URL('/mealplan', origin));
   }
+
+  return NextResponse.next();
 });
 
 export const config = {
