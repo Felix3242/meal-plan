@@ -1,5 +1,5 @@
-export default function Createprofile() {
+export default function CreateProfile() {
     return (
-
+        <div></div>
     )
 }
