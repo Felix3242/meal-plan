@@ -1,50 +1,101 @@
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 import Stripe from "stripe";
-import { stripe } from "@/lib/stripe";
 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET as string;
 
-export async function POST(request: NextRequest) {
-    const body = await request.text()
-    const signature = request.headers.get("stripe-signature")
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
+export async function POST(req: NextRequest) {
+    const body = await req.text();
+    const signature = req.headers.get("stripe-signature");
+
     let event: Stripe.Event;
 
+    // Verify Stripe event is legit
     try {
-        event = stripe.webhooks.constructEvent(body, signature || "", webhookSecret)
-    }
-    catch (error: unknown) {
-        return NextResponse.json( {error: error instanceof Error ? error.message : "Unknown error" }, { status: 400 })
+    event = stripe.webhooks.constructEvent(body, signature || "", webhookSecret);
+    } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Unknown error";
+    console.error(`Webhook signature verification failed. ${errorMessage}`);
+    return NextResponse.json({ error: errorMessage }, { status: 400 });
     }
 
-    switch (event.type) {
-        case "checkout.session.completed": {
-            const session = event.data.object as Stripe.Checkout.Session;
-            await handleCheckoutSessionCompleted(session)
-            break;
+    try {
+        switch (event.type) {
+            case "checkout.session.completed": {
+                const session = event.data.object as Stripe.Checkout.Session;
+                await handleCheckoutSessionCompleted(session);
+                break;
+            }
+            case "invoice.payment_failed": {
+                const invoice = event.data.object as Stripe.Invoice;
+                await handleInvoicePaymentFailed(invoice);
+                break;
+            }
+            case "customer.subscription.deleted": {
+                const subscription = event.data.object as Stripe.Subscription;
+                await handleSubscriptionDeleted(subscription);
+                break;
+            }
+            // Add more event types as needed
+            default:
+                console.log(`Unhandled event type ${event.type}`);
         }
-        case "invoice.payment_failed": {
-            const session = event.data.object as Stripe.Invoice;
-            await handleInvoicePaymentFailed(session)
-            break;
-        }
-        case "customer.subscription.deleted": {
-            const session = event.data.object as Stripe.Subscription;
-            await handleCustomerSubscriptionDeleted(session)
-            break;
-        }
-        default: 
-            console.warn(`Unhandled event type: ${event.type}`)
+    } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : "Unknown error";
+        console.error(`stripe error: ${errorMessage} | EVENT TYPE: ${event.type}`);
+        return NextResponse.json({ error: errorMessage }, { status: 400 });
     }
+
+  return NextResponse.json({});
 }
 
-async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
-    
+// Handler for successful checkout sessions
+const handleCheckoutSessionCompleted = async (session: Stripe.Checkout.Session) => {
+    const userId = session.metadata?.clerkUserId;
+    console.log("Handling checkout.session.completed for user:", userId);
+
+    if (!userId) {
+        console.error("No userId found in session metadata.");
+        return;
+    }
+
+    // Retrieve subscription ID from the session
+    const subscriptionId = session.subscription as string;
+
+    if (!subscriptionId) {
+        console.error("No subscription ID found in session.");
+        return;
+    }
+
+    // Update Prisma with subscription details
+    try {
+        await prisma.profile.update({
+        where: { userId },
+        data: {
+            stripeSubscriptionId: subscriptionId,
+            subscriptionActive: true,
+            subscriptionTier: session.metadata?.planType || null,
+        },
+        });
+        console.log(`Subscription activated for user: ${userId}`);
+    } catch (error: unknown) {
+        const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+        console.error("Prisma Update Error:", errorMessage);
+    }
+};
+
+async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
+    const subId = invoice.subscription as string;
+    if (!subId) {
+        return;
+    }
+  // TODO: implement
 }
 
-async function handleInvoicePaymentFailed(session: Stripe.Invoice) {
-
-}
-
-async function handleCustomerSubscriptionDeleted(session: Stripe.Subscription) {
-
+async function handleSubscriptionDeleted(
+  subscription: Stripe.Subscription
+) {
+  // TODO: implement
 }
