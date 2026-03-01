@@ -3,7 +3,7 @@
 
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { availablePlans } from "@/lib/plans"; // Adjust the path based on your project structure
 import toast, { Toaster } from "react-hot-toast"; // Optional: For better user feedback
 
@@ -46,7 +46,7 @@ const subscribeToPlan = async ({
   return data;
 };
 
-export default function SubscribePage() {
+export default function Subscribe() {
   const { user } = useUser(); // Access the current user
   const router = useRouter(); // Next.js router for navigation
 
