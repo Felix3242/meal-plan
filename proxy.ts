@@ -12,6 +12,10 @@ const isSignUpRoute = createRouteMatcher([
   '/sign-up(.*)'
 ]);
 
+const isMealPlanRoute = createRouteMatcher([
+  '/mealplan(.*)'
+]);
+
 export default clerkMiddleware(async (auth, req) => {
   const userAuth = await auth();
   const { userId } = userAuth;
@@ -24,6 +28,10 @@ export default clerkMiddleware(async (auth, req) => {
 
   if (isSignUpRoute(req) && userId) {
     return NextResponse.redirect(new URL('/mealplan', origin));
+  }
+
+  if (isMealPlanRoute(req) && !userId) {
+
   }
 
   return NextResponse.next();
