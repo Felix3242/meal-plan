@@ -52,3 +52,11 @@ export const availablePlans: Plan[] = [
     ],
   },
 ];
+
+const priceIdMap: Record<string, string> = {
+  week: process.env.STRIPE_PRICE_WEEKLY!,
+  month: process.env.STRIPE_PRICE_MONTHLY!,
+  year: process.env.STRIPE_PRICE_YEARLY!,
+};
+
+export const getPriceIdFromType = (planType: string) => priceIdMap[planType];
