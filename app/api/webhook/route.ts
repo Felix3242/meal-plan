@@ -86,16 +86,100 @@ const handleCheckoutSessionCompleted = async (session: Stripe.Checkout.Session) 
     }
 };
 
-async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
-    const subId = invoice.subscription as string;
-    if (!subId) {
+const handleInvoicePaymentFailed = async (invoice: Stripe.Invoice) => {
+  // `Stripe.Invoice` type sometimes omits `subscription` in our
+  // typings.  We cast to `any` and check at runtime.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const subscriptionId = (invoice as any).subscription as string | undefined;
+  console.log(
+    "Handling invoice.payment_failed for subscription:",
+    subscriptionId
+  );
+
+  if (!subscriptionId) {
+    console.error("No subscription ID found in invoice.");
+    return;
+  }
+
+  // Retrieve userId from subscription ID
+  let userId: string | undefined;
+  try {
+    const profile = await prisma.profile.findUnique({
+      where: { stripeSubscriptionId: subscriptionId },
+      select: { userId: true },
+    });
+
+    if (!profile?.userId) {
+      console.error("No profile found for this subscription ID.");
+      return;
+    }
+
+    userId = profile.userId;
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    console.error("Prisma Query Error:", errorMessage);
+    return;
+  }
+
+  // Update Prisma with payment failure
+  try {
+    await prisma.profile.update({
+      where: { userId },
+      data: {
+        subscriptionActive: false,
+      },
+    });
+    console.log(`Subscription payment failed for user: ${userId}`);
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    console.error("Prisma Update Error:", errorMessage);
+  }
+};
+
+// Handler for subscription deletions (e.g., cancellations)
+const handleSubscriptionDeleted = async (subscription: Stripe.Subscription) => {
+    const subscriptionId = subscription.id;
+    console.log(
+        "Handling customer.subscription.deleted for subscription:",
+        subscriptionId
+    );
+
+    // Retrieve userId from subscription ID
+    let userId: string | undefined;
+    try {
+        const profile = await prisma.profile.findUnique({
+            where: { stripeSubscriptionId: subscriptionId },
+            select: { userId: true },
+        });
+
+        if (!profile?.userId) {
+            console.error("No profile found for this subscription ID.");
+            return;
+        }
+
+        userId = profile.userId;
+    } catch (error: unknown) {
+        const errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
+        console.error("Prisma Query Error:", errorMessage);
         return;
     }
-  // TODO: implement
-}
 
-async function handleSubscriptionDeleted(
-  subscription: Stripe.Subscription
-) {
-  // TODO: implement
-}
+    // Update Prisma with subscription cancellation
+    try {
+        await prisma.profile.update({
+            where: { userId },
+            data: {
+            subscriptionActive: false,
+            stripeSubscriptionId: null,
+            },
+        });
+        console.log(`Subscription canceled for user: ${userId}`);
+    } catch (error: unknown) {
+        const errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
+        console.error("Prisma Update Error:", errorMessage);
+    }
+};
