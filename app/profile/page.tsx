@@ -30,7 +30,7 @@ export default function Profile() {
     (plan) => plan.interval === subscription?.subscription.subscriptionTier,
   );
 
-  i// Loading or Not Signed In States
+  // Loading or Not Signed In States
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-emerald-100">
@@ -70,41 +70,48 @@ export default function Profile() {
           </div>
 
           {/* Right Panel: Subscription Details */}
-          <div>
-            <h2> Subscription Details </h2>
+          <div className="w-full md:w-2/3 p-6 bg-gray-50">
+            <h2 className="text-2xl font-bold mb-6 text-emerald-700">
+              Subscription Details
+            </h2>
+
             {isLoading ? (
-              <div>
-                <Spinner /> <span> Loading subscription details...</span>
+              <div className="flex items-center">
+                <Spinner />
+                <span className="ml-2">Loading subscription details...</span>
               </div>
             ) : isError ? (
-              <p> {error?.message} </p>
+              <p className="text-red-500">{error?.message}</p>
             ) : subscription ? (
-              <div>
-                <h3> Current Plan </h3>
-                {currentPlan ? (
-                  <div>
+              <div className="space-y-6">
+                {/* Current Subscription Info */}
+                <div className="bg-white shadow-md rounded-lg p-4 border border-emerald-200">
+                  <h3 className="text-xl font-semibold mb-2 text-emerald-600">
+                    Current Plan
+                  </h3>
+                  {currentPlan ? (
                     <>
                       <p>
-                        {" "}
-                        <strong> Plan: </strong> {currentPlan.name}{" "}
+                        <strong>Plan:</strong> {currentPlan.name}
                       </p>
                       <p>
-                        {" "}
-                        <strong> Amount: </strong> {currentPlan.amount}
-                        {currentPlan.currency}{" "}
+                        <strong>Amount:</strong> ${currentPlan.amount}{" "}
+                        {currentPlan.currency}
                       </p>
                       <p>
-                        {" "}
-                        <strong> Status: </strong> ACTIVE{" "}
+                        <strong>Status:</strong>{" "}
+                        {subscription.subscription.subscription_active
+                          ? "ACTIVE"
+                          : "INACTIVE"}
                       </p>
                     </>
-                  </div>
-                ) : (
-                  <p> Current Plan not Found. </p>
-                )}
+                  ) : (
+                    <p className="text-red-500">Current plan not found.</p>
+                  )}
+                </div>
               </div>
             ) : (
-              <p> You are no subscribed to any plan. </p>
+              <p>You are not subscribed to any plan.</p>
             )}
           </div>
         </div>
