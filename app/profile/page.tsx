@@ -30,44 +30,46 @@ export default function Profile() {
     (plan) => plan.interval === subscription?.subscription.subscriptionTier,
   );
 
+  i// Loading or Not Signed In States
   if (!isLoaded) {
     return (
-      <div>
-        {" "}
-        <Spinner /> <span> Loading...</span>
+      <div className="flex items-center justify-center min-h-screen bg-emerald-100">
+        <Spinner />
+        <span className="ml-2">Loading...</span>
       </div>
     );
   }
 
   if (!isSignedIn) {
     return (
-      <div>
-        {" "}
-        <p> Please sign in to view your profile.</p>
+      <div className="flex items-center justify-center min-h-screen bg-emerald-100">
+        <p>Please sign in to view your profile.</p>
       </div>
     );
   }
+
   return (
-    <div>
-      {" "}
-      <Toaster position="top-center" />
-      <div>
-        <div>
-          <div>
-            {user.imageUrl && (
-              <Image
-                src={user.imageUrl}
-                alt="User Avatar"
-                width={100}
-                height={100}
-              />
-            )}
-            <h1>
-              {" "}
-              {user.firstName} {user.lastName}{" "}
+    <div className="min-h-screen flex items-center justify-center bg-emerald-100 p-4">
+      <Toaster position="top-center" />{" "}
+      {/* Optional: For toast notifications */}
+      <div className="w-full max-w-5xl bg-white shadow-lg rounded-lg overflow-hidden">
+        <div className="flex flex-col md:flex-row">
+          <div className="w-full md:w-1/3 p-6 bg-emerald-500 text-white flex flex-col items-center">
+            <Image
+              src={user.imageUrl || "/default-avatar.png"} // Provide a default avatar if none
+              alt="User Avatar"
+              width={100}
+              height={100}
+              className="rounded-full mb-4"
+            />
+            <h1 className="text-2xl font-bold mb-2">
+              {user.firstName} {user.lastName}
             </h1>
-            <p> {user.primaryEmailAddress?.emailAddress} </p>
+            <p className="mb-4">{user.primaryEmailAddress?.emailAddress}</p>
+            {/* Add more profile details or edit options as needed */}
           </div>
+
+          {/* Right Panel: Subscription Details */}
           <div>
             <h2> Subscription Details </h2>
             {isLoading ? (
