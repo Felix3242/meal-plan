@@ -14,15 +14,20 @@ async function fetchSubscriptionStatus() {
 
 export default function Profile() {
   const { isLoaded, isSignedIn, user } = useUser();
-  const { data: subscription, isLoading, isError, error } = useQuery({
-    queryKey: ["subscription"], 
+  const {
+    data: subscription,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["subscription"],
     queryFn: fetchSubscriptionStatus,
     enabled: isLoaded && isSignedIn,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   const currentPlan = availablePlans.find(
-    (plan) => plan.interval === subscription.subscription.subscriptionTier
+    (plan) => plan.interval === subscription?.subscription.subscriptionTier,
   );
 
   if (!isLoaded) {
@@ -50,17 +55,55 @@ export default function Profile() {
         <div>
           <div>
             {user.imageUrl && (
-              <Image src={user.imageUrl} 
-              alt="User Avatar"
-              width={100}
-              height={100} 
+              <Image
+                src={user.imageUrl}
+                alt="User Avatar"
+                width={100}
+                height={100}
               />
             )}
-            <h1> {user.firstName} {user.lastName} </h1>
+            <h1>
+              {" "}
+              {user.firstName} {user.lastName}{" "}
+            </h1>
             <p> {user.primaryEmailAddress?.emailAddress} </p>
           </div>
           <div>
             <h2> Subscription Details </h2>
+            {isLoading ? (
+              <div>
+                <Spinner /> <span> Loading subscription details...</span>
+              </div>
+            ) : isError ? (
+              <p> {error?.message} </p>
+            ) : subscription ? (
+              <div>
+                <h3> Current Plan </h3>
+                {currentPlan ? (
+                  <div>
+                    <>
+                      <p>
+                        {" "}
+                        <strong> Plan: </strong> {currentPlan.name}{" "}
+                      </p>
+                      <p>
+                        {" "}
+                        <strong> Amount: </strong> {currentPlan.amount}
+                        {currentPlan.currency}{" "}
+                      </p>
+                      <p>
+                        {" "}
+                        <strong> Status: </strong> ACTIVE{" "}
+                      </p>
+                    </>
+                  </div>
+                ) : (
+                  <p> Current Plan not Found. </p>
+                )}
+              </div>
+            ) : (
+              <p> You are no subscribed to any plan. </p>
+            )}
           </div>
         </div>
       </div>
