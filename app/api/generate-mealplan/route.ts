@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { parse } from "node:path";
 import OpenAI from "openai";
 
 const openAI = new OpenAI({
@@ -45,8 +46,46 @@ export async function POST(request: NextRequest) {
 
       Return just the json with no extra commentaries and no backticks.
     `;
+
+    const response = await openAI.chat.completions.create({
+      model: "meta-llama/llama-3.2-3b-instruct:free",
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+
+      temperature: 0.7,
+      max_tokens: 1500,
+    });
+
+    const aiContent = response.choices[0].message.content!.trim();
+
+    let parsedMealPlan: {[day: string]: DailyMealPlan};
+
+    try {
+      parsedMealPlan = JSON.parse(aiContent);
+    } catch (parseError) {
+      console.error("Error parsing response: ", parseError);
+      return NextResponse.json({ error: "Failed to parse meal plan. Please try again." }, { status: 500 });
+    }
+
+    if (typeof parsedMealPlan !== "object" || parsedMealPlan === null) {
+      return NextResponse.json({ error: "Failed to parse meal plan. Please try again." }, { status: 500 });
+    }
+
+    return NextResponse.json({ mealPlan: parsedMealPlan });
     
-  } catch {
+  } catch (error) {
+    console.error("Error generating meal plan: ", error);
     return NextResponse.json({ error: "Internal Error." }, { status: 500 });
   }
+}
+
+interface DailyMealPlan {
+  Breakfast?: string;
+  Lunch?: string;
+  Dinner?: string;
+  Snacks?: string;
 }
