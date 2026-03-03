@@ -83,7 +83,7 @@ export async function POST(request: Request) {
       parsedMealPlan = JSON.parse(cleanedContent);
     } catch (parseError) {
       // Log the actual content for debugging
-      console.error("Failed to parse:", cleanedContent.substring(0, 500));
+      console.error("Failed to parse:", cleanedContent.substring(0, 500), parseError);
       // If parsing fails, return the raw text with an error message
       return NextResponse.json(
         { error: "Invalid meal plan format. Please try again." },
