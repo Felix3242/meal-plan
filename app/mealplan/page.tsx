@@ -232,17 +232,17 @@ export default function MealPlanDashboard() {
                       </h3>
                       {mealPlan ? (
                         <div className="space-y-2">
-                          <div>
+                          <div className="text-black">
                             <strong>Breakfast:</strong> {mealPlan.Breakfast}
                           </div>
-                          <div>
+                          <div className="text-black">
                             <strong>Lunch:</strong> {mealPlan.Lunch}
                           </div>
-                          <div>
+                          <div className="text-black">
                             <strong>Dinner:</strong> {mealPlan.Dinner}
                           </div>
                           {mealPlan.Snacks && (
-                            <div>
+                            <div className="text-black">
                               <strong>Snacks:</strong> {mealPlan.Snacks}
                             </div>
                           )}
