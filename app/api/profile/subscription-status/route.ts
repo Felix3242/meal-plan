@@ -15,6 +15,7 @@ export async function GET() {
             },
             select: {
                 subscriptionTier: true,
+                subscriptionActive: true,
             }
         });
 

@@ -85,7 +85,7 @@ export default function Profile() {
             ) : subscription ? (
               <div className="space-y-6">
                 {/* Current Subscription Info */}
-                <div className="bg-white shadow-md rounded-lg p-4 border border-emerald-200">
+                <div className="bg-white shadow-md rounded-lg p-4 border border-emerald-200 text-gray-800">
                   <h3 className="text-xl font-semibold mb-2 text-emerald-600">
                     Current Plan
                   </h3>
@@ -100,7 +100,7 @@ export default function Profile() {
                       </p>
                       <p>
                         <strong>Status:</strong>{" "}
-                        {subscription.subscription.subscription_active
+                        {subscription.subscription.subscriptionActive
                           ? "ACTIVE"
                           : "INACTIVE"}
                       </p>
