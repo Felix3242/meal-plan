@@ -1,12 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 
-export async function GET() {
+export async function POST(request: NextRequest) {
     try {
         const clerkUser = await currentUser()
         if (!clerkUser?.id) {
             return NextResponse.json({ error: "Unauthorized" });
+        }
+
+        const { newPlan } = await request.json();
+
+        if (!newPlan) {
+            return NextResponse.json({ error: "New plan is required" }, { status: 400 });
         }
 
         const profile = await prisma.profile.findUnique({
