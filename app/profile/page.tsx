@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { use, useState } from "react";
 import { Spinner } from "@/components/spinner";
 import { useUser } from "@clerk/nextjs";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { availablePlans } from "@/lib/plans";
@@ -37,6 +39,9 @@ async function unsubscribe() {
 export default function Profile() {
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const { isLoaded, isSignedIn, user } = useUser();
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
   const {
     data: subscription,
     isLoading,
@@ -55,6 +60,13 @@ export default function Profile() {
     isPending: isUpdatePlanPending,
   } = useMutation({
     mutationFn: updatePlan,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["subscription"] });
+      toast.success("Subscription plan updated successfully!");
+    },
+    onError: () => {
+      toast.error("Error updating subscription plan.");
+    }
   });
 
   const {
@@ -63,6 +75,13 @@ export default function Profile() {
     isPending: isUnsubscribePending,
   } = useMutation({
     mutationFn: unsubscribe,
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ["subscription"]});
+      router.push("/subscribe")
+    },
+    onError: () => {
+      toast.error("Error unsubscribing.");
+    }
   });
 
   const currentPlan = availablePlans.find(
