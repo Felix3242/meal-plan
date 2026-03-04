@@ -114,6 +114,21 @@ export default function Profile() {
               <p>You are not subscribed to any plan.</p>
             )}
           </div>
+
+          <div>
+            <h3> Change Subscription Plan </h3>
+            <select>
+              <option value="" disabled>
+                Select A New Plan
+              </option>
+
+              {availablePlans.map((plan, key) => (
+                <option key={key}>
+                  {plan.name} - ${plan.amount} / {plan.interval}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
     </div>
