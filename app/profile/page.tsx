@@ -47,6 +47,8 @@ export default function Profile() {
     isLoading,
     isError,
     error,
+    refetch,
+    isRefetching,
   } = useQuery({
     queryKey: ["subscription"],
     queryFn: fetchSubscriptionStatus,
@@ -148,9 +150,18 @@ export default function Profile() {
 
           {/* Right Panel: Subscription Details */}
           <div className="w-full md:w-2/3 p-6 bg-gray-50">
-            <h2 className="text-2xl font-bold mb-6 text-emerald-700">
-              Subscription Details
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-emerald-700">
+                Subscription Details
+              </h2>
+              <button
+                onClick={() => refetch?.()}
+                disabled={isLoading || isRefetching}
+                className="ml-4 px-3 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
+              >
+                {isRefetching ? "Refreshing..." : "Refresh"}
+              </button>
+            </div>
 
             {isLoading ? (
               <div className="flex items-center">
