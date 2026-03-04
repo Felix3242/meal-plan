@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Spinner } from "@/components/spinner";
 import { useUser } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
@@ -24,6 +25,7 @@ async function updatePlan(newPlan: string) {
 }
 
 export default function Profile() {
+  const [selectedPlan, setSelectedPlan] = useState<string>("");
   const { isLoaded, isSignedIn, user } = useUser();
   const {
     data: subscription,
@@ -50,7 +52,11 @@ export default function Profile() {
   );
 
   function handleUpdatePlan () {
-    
+    if (selectedPlan) {
+      updatePlanMutation(selectedPlan);
+    }
+
+    setSelectedPlan("");
   }
 
   // Loading or Not Signed In States
@@ -145,6 +151,7 @@ export default function Profile() {
                 <select
                   defaultValue={currentPlan?.interval}
                   disabled={isUpdatePlanPending}
+                  onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setSelectedPlan(event.target.value)}
                 >
                   <option value="" disabled>
                     Select A New Plan
@@ -156,7 +163,9 @@ export default function Profile() {
                     </option>
                   ))}
                 </select>
-                <button onClick={handleUpdatePlan}> Save Change </button>
+                <button onClick={handleUpdatePlan} disabled={isUpdatePlanPending || !selectedPlan}>
+                  Save Change
+                </button>
                 {isUpdatePlanPending && (
                   <div>
                     {" "}
