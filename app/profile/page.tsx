@@ -171,7 +171,7 @@ export default function Profile() {
                 </select>
                 <button
                   onClick={handleUpdatePlan}
-                  disabled={isUpdatePlanPending || !selectedPlan}
+                  //disabled={isUpdatePlanPending || !selectedPlan}
                   className="mt-3 p-2 bg-emerald-500 rounded-lg text-white"
                 >
                   Save Change
@@ -184,6 +184,11 @@ export default function Profile() {
                 )}
               </>
             )}
+          </div>
+
+          <div>
+            <h3> Unsubscribe </h3>
+            <button> Unsubscribe </button>
           </div>
         </div>
       </div>
