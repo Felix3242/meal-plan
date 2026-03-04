@@ -117,17 +117,22 @@ export default function Profile() {
 
           <div>
             <h3> Change Subscription Plan </h3>
-            <select>
-              <option value="" disabled>
-                Select A New Plan
-              </option>
+            {currentPlan && (
+              <>
+                <select defaultValue={currentPlan?.interval}>
+                  <option value="" disabled>
+                    Select A New Plan
+                  </option>
 
-              {availablePlans.map((plan, key) => (
-                <option key={key}>
-                  {plan.name} - ${plan.amount} / {plan.interval}
-                </option>
-              ))}
-            </select>
+                  {availablePlans.map((plan, key) => (
+                    <option key={key} value={plan.interval}>
+                      {plan.name} - ${plan.amount} / {plan.interval}
+                    </option>
+                  ))}
+                </select>
+                <button> Save Change </button>
+              </>
+            )}
           </div>
         </div>
       </div>
