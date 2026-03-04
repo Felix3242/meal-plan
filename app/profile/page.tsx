@@ -3,12 +3,23 @@
 import { Spinner } from "@/components/spinner";
 import { useUser } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { availablePlans } from "@/lib/plans";
 
 async function fetchSubscriptionStatus() {
   const response = await fetch("/api/profile/subscription-status");
+  return response.json();
+}
+
+async function updatePlan(newPlan: string) {
+  const response = await fetch("/api/profile/change-plan", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ newPlan }),
+  });
   return response.json();
 }
 
@@ -24,6 +35,10 @@ export default function Profile() {
     queryFn: fetchSubscriptionStatus,
     enabled: isLoaded && isSignedIn,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
+  const {data: updatedPlan, mutate: updatePlanMutation, isPending: isUpdatePlanPending} = useMutation({
+    mutationFn: updatePlan,
   });
 
   const currentPlan = availablePlans.find(
@@ -119,7 +134,7 @@ export default function Profile() {
             <h3> Change Subscription Plan </h3>
             {currentPlan && (
               <>
-                <select defaultValue={currentPlan?.interval}>
+                <select defaultValue={currentPlan?.interval} disabled={isUpdatePlanPending}>
                   <option value="" disabled>
                     Select A New Plan
                   </option>
