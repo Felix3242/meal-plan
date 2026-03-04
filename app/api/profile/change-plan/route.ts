@@ -63,7 +63,17 @@ export async function POST(request: NextRequest) {
       },
     );
 
-    return NextResponse.json({ subscription: profile });
+    await prisma.profile.update({
+      where: {
+        userId: clerkUser.id },
+      data: {
+        subscriptionTier: newPlan,
+        stripeSubscriptionId: updatedSubscription.id,
+        subscriptionActive: true,
+      },
+    });
+
+    return NextResponse.json({ subscription: updatedSubscription });
   } catch {
     return NextResponse.json({ error: "Internal Error" }, { status: 500 });
   }
