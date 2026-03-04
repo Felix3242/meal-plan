@@ -24,6 +24,16 @@ async function updatePlan(newPlan: string) {
   return response.json();
 }
 
+async function unsubscribe() {
+  const response = await fetch("/api/profile/unsubscribe", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.json();
+}
+
 export default function Profile() {
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const { isLoaded, isSignedIn, user } = useUser();
@@ -47,6 +57,14 @@ export default function Profile() {
     mutationFn: updatePlan,
   });
 
+  const {
+    data: canceledPlan,
+    mutate: unsubscribeMutation,
+    isPending: isUnsubscribePending,
+  } = useMutation({
+    mutationFn: unsubscribe,
+  });
+
   const currentPlan = availablePlans.find(
     (plan) => plan.interval === subscription?.subscription.subscriptionTier,
   );
@@ -57,6 +75,12 @@ export default function Profile() {
     }
 
     setSelectedPlan("");
+  }
+
+  function handleUnsubscribe() {
+    if (confirm("Are you sure you want to unsubscribe? You will lose access to premium features.")) {
+      unsubscribeMutation();
+    }
   }
 
   // Loading or Not Signed In States
@@ -188,7 +212,10 @@ export default function Profile() {
 
           <div>
             <h3> Unsubscribe </h3>
-            <button> Unsubscribe </button>
+            <button onClick={handleUnsubscribe} disabled={isUnsubscribePending}>
+              {" "}
+              {isUnsubscribePending ? "Unsubscribing..." : "Unsubscribe"}{" "}
+            </button>
           </div>
         </div>
       </div>
