@@ -63,10 +63,11 @@ export default function Profile() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["subscription"] });
       toast.success("Subscription plan updated successfully!");
+      refetch();
     },
     onError: () => {
       toast.error("Error updating subscription plan.");
-    }
+    },
   });
 
   const {
@@ -76,12 +77,12 @@ export default function Profile() {
   } = useMutation({
     mutationFn: unsubscribe,
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ["subscription"]});
-      router.push("/subscribe")
+      queryClient.invalidateQueries({ queryKey: ["subscription"] });
+      router.push("/subscribe");
     },
     onError: () => {
       toast.error("Error unsubscribing.");
-    }
+    },
   });
 
   const currentPlan = availablePlans.find(
@@ -97,7 +98,11 @@ export default function Profile() {
   }
 
   function handleUnsubscribe() {
-    if (confirm("Are you sure you want to unsubscribe? You will lose access to premium features.")) {
+    if (
+      confirm(
+        "Are you sure you want to unsubscribe? You will lose access to premium features.",
+      )
+    ) {
       unsubscribeMutation();
     }
   }
@@ -181,60 +186,74 @@ export default function Profile() {
                     <p className="text-red-500">Current plan not found.</p>
                   )}
                 </div>
+                <div className="bg-white shadow-md rounded-lg p-4 border border-emerald-200">
+                  <h3 className="text-xl font-semibold mb-2 text-emerald-600">
+                    {" "}
+                    Change Subscription Plan{" "}
+                  </h3>
+                  {currentPlan && (
+                    <>
+                      <select
+                        defaultValue={currentPlan?.interval}
+                        disabled={isUpdatePlanPending}
+                        className="w-full px-3 py-2 border border-emerald-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                        onChange={(
+                          event: React.ChangeEvent<HTMLSelectElement>,
+                        ) => setSelectedPlan(event.target.value)}
+                      >
+                        <option value="" disabled>
+                          Select A New Plan
+                        </option>
+
+                        {availablePlans.map((plan, key) => (
+                          <option key={key} value={plan.interval}>
+                            {plan.name} - ${plan.amount} / {plan.interval}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        onClick={handleUpdatePlan}
+                        //disabled={isUpdatePlanPending || !selectedPlan}
+                        className="mt-3 p-2 bg-emerald-500 rounded-lg text-white"
+                      >
+                        Save Changes
+                      </button>
+                      {isUpdatePlanPending && (
+                        <div className="flex items-center mt-2">
+                          {" "}
+                          <Spinner /> <span> Updating Plan...</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                <div className="bg-white shadow-md rounded-lg p-4 border border-emerald-200">
+                  <h3 className="text-xl font-semibold mb-2 text-emerald-600">
+                    Unsubscribe
+                  </h3>
+                  <button
+                    onClick={handleUnsubscribe}
+                    disabled={isUnsubscribePending}
+                    // Inline styles added for debugging visibility issues
+                    style={{
+                      backgroundColor: "#fb2c36",
+                      color: "#ffffff",
+                      backgroundImage: "none",
+                    }}
+                    className={`w-full py-2 px-4 rounded-md hover:bg-red-600 transition-colors shadow-md border-2 border-red-700 relative z-10 ${
+                      isUnsubscribePending
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
+                  >
+                    {isUnsubscribePending ? "Unsubscribing..." : "Unsubscribe"}
+                  </button>
+                </div>
               </div>
             ) : (
               <p>You are not subscribed to any plan.</p>
             )}
-          </div>
-
-          <div className="bg-white shadow-md rounded-lg p-4 border border-emerald-200">
-            <h3 className="text-xl font-semibold mb-2 text-emerald-600">
-              {" "}
-              Change Subscription Plan{" "}
-            </h3>
-            {currentPlan && (
-              <>
-                <select
-                  defaultValue={currentPlan?.interval}
-                  disabled={isUpdatePlanPending}
-                  className="w-full px-3 py-2 border border-emerald-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-emerald-400"
-                  onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
-                    setSelectedPlan(event.target.value)
-                  }
-                >
-                  <option value="" disabled>
-                    Select A New Plan
-                  </option>
-
-                  {availablePlans.map((plan, key) => (
-                    <option key={key} value={plan.interval}>
-                      {plan.name} - ${plan.amount} / {plan.interval}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  onClick={handleUpdatePlan}
-                  //disabled={isUpdatePlanPending || !selectedPlan}
-                  className="mt-3 p-2 bg-emerald-500 rounded-lg text-white"
-                >
-                  Save Change
-                </button>
-                {isUpdatePlanPending && (
-                  <div className="flex items-center mt-2">
-                    {" "}
-                    <Spinner /> <span> Updating Plan...</span>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          <div>
-            <h3> Unsubscribe </h3>
-            <button onClick={handleUnsubscribe} disabled={isUnsubscribePending}>
-              {" "}
-              {isUnsubscribePending ? "Unsubscribing..." : "Unsubscribe"}{" "}
-            </button>
           </div>
         </div>
       </div>
