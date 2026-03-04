@@ -37,13 +37,21 @@ export default function Profile() {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
-  const {data: updatedPlan, mutate: updatePlanMutation, isPending: isUpdatePlanPending} = useMutation({
+  const {
+    data: updatedPlan,
+    mutate: updatePlanMutation,
+    isPending: isUpdatePlanPending,
+  } = useMutation({
     mutationFn: updatePlan,
   });
 
   const currentPlan = availablePlans.find(
     (plan) => plan.interval === subscription?.subscription.subscriptionTier,
   );
+
+  function handleUpdatePlan () {
+    
+  }
 
   // Loading or Not Signed In States
   if (!isLoaded) {
@@ -134,7 +142,10 @@ export default function Profile() {
             <h3> Change Subscription Plan </h3>
             {currentPlan && (
               <>
-                <select defaultValue={currentPlan?.interval} disabled={isUpdatePlanPending}>
+                <select
+                  defaultValue={currentPlan?.interval}
+                  disabled={isUpdatePlanPending}
+                >
                   <option value="" disabled>
                     Select A New Plan
                   </option>
@@ -145,7 +156,13 @@ export default function Profile() {
                     </option>
                   ))}
                 </select>
-                <button> Save Change </button>
+                <button onClick={handleUpdatePlan}> Save Change </button>
+                {isUpdatePlanPending && (
+                  <div>
+                    {" "}
+                    <Spinner /> <span> Updating Plan...</span>
+                  </div>
+                )}
               </>
             )}
           </div>
