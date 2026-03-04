@@ -51,7 +51,7 @@ export default function Profile() {
     (plan) => plan.interval === subscription?.subscription.subscriptionTier,
   );
 
-  function handleUpdatePlan () {
+  function handleUpdatePlan() {
     if (selectedPlan) {
       updatePlanMutation(selectedPlan);
     }
@@ -144,14 +144,20 @@ export default function Profile() {
             )}
           </div>
 
-          <div>
-            <h3> Change Subscription Plan </h3>
+          <div className="bg-white shadow-md rounded-lg p-4 border border-emerald-200">
+            <h3 className="text-xl font-semibold mb-2 text-emerald-600">
+              {" "}
+              Change Subscription Plan{" "}
+            </h3>
             {currentPlan && (
               <>
                 <select
                   defaultValue={currentPlan?.interval}
                   disabled={isUpdatePlanPending}
-                  onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setSelectedPlan(event.target.value)}
+                  className="w-full px-3 py-2 border border-emerald-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+                    setSelectedPlan(event.target.value)
+                  }
                 >
                   <option value="" disabled>
                     Select A New Plan
@@ -163,11 +169,15 @@ export default function Profile() {
                     </option>
                   ))}
                 </select>
-                <button onClick={handleUpdatePlan} disabled={isUpdatePlanPending || !selectedPlan}>
+                <button
+                  onClick={handleUpdatePlan}
+                  disabled={isUpdatePlanPending || !selectedPlan}
+                  className="mt-3 p-2 bg-emerald-500 rounded-lg text-white"
+                >
                   Save Change
                 </button>
                 {isUpdatePlanPending && (
-                  <div>
+                  <div className="flex items-center mt-2">
                     {" "}
                     <Spinner /> <span> Updating Plan...</span>
                   </div>
